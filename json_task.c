@@ -47,7 +47,7 @@ int main(void){
         if (strcmp(nodetype, "FuncDef") == 0){
             // 함수 개수 올리기!
             count_func++;
-            
+            printf("[%d] function!\n", count_func);
             // 함수의 리턴 타입 출력하기!
             json_value decl = json_get(item, "decl");
             char *fname = json_get_string(decl, "name");
@@ -59,11 +59,34 @@ int main(void){
                 type2 = json_get(type2, "type");
             }
             json_value type3 = json_get(type2, "type");
-            char *ftype = json_get_string(type3, "names", 0); 
-            
+
             // 함수의 이름 출력하기!
+            char *ftype = json_get_string(type3, "names", 0); 
             printf("function name : %s\n", fname);
             printf("functions return type : %s\n", ftype);
+
+            // 파라미터 타입과 이름 출력하기!
+            json_value decl_type = json_get(decl, "type");
+            json_value type_args = json_get(decl_type, "args");
+
+            if (type_args.type == JSON_NULL) {
+                printf("no params\n");
+            } else {
+                int param_count = json_len(json_get(type_args, "params"));
+                for (int p = 0; p < param_count; p++) {
+                    json_value args_params = json_get(type_args, "params", p);
+                    char *pname = json_get_string(args_params, "name");
+
+                    json_value ptype1 = json_get(args_params, "type");
+                    if (strcmp(json_get_string(ptype1, "_nodetype"), "PtrDecl") == 0) {
+                        ptype1 = json_get(ptype1, "type");
+                    }
+                    json_value ptype2 = json_get(ptype1, "type");
+                    char *ptype = json_get_string(ptype2, "names", 0);
+
+                    printf("param %d : type=%s, name=%s\n", p, ptype, pname);
+                }
+            }
             printf("----------------------------------\n");
         }
 
