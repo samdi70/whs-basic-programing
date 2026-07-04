@@ -61,13 +61,15 @@ int main(void){
             json_value type3 = json_get(type2, "type");
             char *ftype = json_get_string(type3, "names", 0); 
             
-            printf("%d - functions return type : %s\n", i, ftype);
-            
+            // 함수의 이름 출력하기!
+            printf("function name : %s\n", fname);
+            printf("functions return type : %s\n", ftype);
+            printf("----------------------------------\n");
         }
 
     }
     printf("==================================\n");
-    // 존재하는 함수의 전체 개수 출력하기
+    // 존재하는 함수의 전체 개수 출력하기!
     printf("all function counting : %d\n", count_func);
     printf("==================================\n");
 
