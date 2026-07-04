@@ -3,6 +3,34 @@
 #include "json_c.c"
 #include <string.h>
 
+int count_if(json_value node) {
+    int count = 0;
+
+    if (node.type == JSON_OBJECT) {
+        // 1) 지금 이 노드 자체가 If인지 확인
+        json_value nt = json_get(node, "_nodetype");
+        if (nt.type == JSON_STRING && strcmp((char*)nt.value, "If") == 0) {
+            count++;
+        }
+        // 2) 이 객체 안의 모든 값들을 하나씩 다시 검사 (재귀 호출)
+        json_object *obj = (json_object *)node.value;
+        for (int i = 0; i <= obj->last_index; i++) {
+            count += count_if(obj->values[i]);
+        }
+    } else if (node.type == JSON_ARRAY) {
+        // 배열이면 모든 원소를 하나씩 다시 검사 (재귀 호출)
+        json_array *arr = (json_array *)node.value;
+        for (int i = 0; i <= arr->last_index; i++) {
+            count += count_if(arr->values[i]);
+        }
+    }
+
+    return count;
+}
+
+
+
+
 int main(void){
 
     // 1. ast.json 파일 불러와서 총 크기 설정하고 동적 할당
@@ -52,6 +80,10 @@ int main(void){
             json_value decl = json_get(item, "decl");
             char *fname = json_get_string(decl, "name");
 
+            // if의 개수 출력하기!
+            json_value body = json_get(item, "body");
+            int if_count = count_if(body);
+
             json_value type = json_get(decl, "type");
             json_value type2 = json_get(type, "type");
             
@@ -87,6 +119,7 @@ int main(void){
                     printf("param %d : type=%s, name=%s\n", p, ptype, pname);
                 }
             }
+            printf("if 개수 : %d\n", if_count);
             printf("----------------------------------\n");
         }
 
